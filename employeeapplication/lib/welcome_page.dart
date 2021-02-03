@@ -1,3 +1,5 @@
+import 'package:employeeapplication/admin_login_page.dart';
+import 'package:employeeapplication/employee_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,7 +17,7 @@ class _WelcomePageState extends State<WelcomePage> {
     return InkWell(
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => WelcomePage()));
+            context, MaterialPageRoute(builder: (context) => EmployeeLoginPage()));
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -43,7 +45,7 @@ class _WelcomePageState extends State<WelcomePage> {
     return InkWell(
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => WelcomePage()));
+            context, MaterialPageRoute(builder: (context) => AdminLoginPage()));
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
