@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "291692531469",
+    "firebase_url": "https://employees-payroll-location-default-rtdb.firebaseio.com",
+    "project_id": "employees-payroll-location",
+    "storage_bucket": "employees-payroll-location.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:291692531469:android:f94f5d0006f1e47494aa44",
+        "android_client_info": {
+          "package_name": "com.example.employeeapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "291692531469-f36unml7ifb6mjr62vupate9ppcj6dnc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaN8IM8LbgtFZo_Wspcw0tnFWlurnBIzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "291692531469-f36unml7ifb6mjr62vupate9ppcj6dnc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

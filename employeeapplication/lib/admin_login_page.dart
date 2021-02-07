@@ -34,7 +34,7 @@ class _EmployeeLoginPageState extends State<AdminLoginPage> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _emailField(String title) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -48,8 +48,33 @@ class _EmployeeLoginPageState extends State<AdminLoginPage> {
             height: 10,
           ),
           TextField(
+              decoration: InputDecoration(
+                  hintText: 'Enter Your Email',
+                  border: InputBorder.none,
+                  fillColor: Color(0xfff3f3f4),
+                  filled: true)),
+        ],
+      ),
+    );
+  }
+
+  Widget _passwordField({bool isPassword = false}) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Password',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextField(
               obscureText: isPassword,
               decoration: InputDecoration(
+                  hintText: 'Enter Your Password',
                   border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),
                   filled: true)),
@@ -110,8 +135,8 @@ class _EmployeeLoginPageState extends State<AdminLoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: [
-        _entryField("Email ID"),
-        _entryField("Password", isPassword: true),
+        _emailField("Email ID"),
+        _passwordField(isPassword: true),
       ],
     );
   }
