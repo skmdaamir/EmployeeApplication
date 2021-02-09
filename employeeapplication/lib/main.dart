@@ -1,19 +1,23 @@
 import 'dart:async';
 
 import 'package:employeeapplication/employee_login_page.dart';
+import 'package:employeeapplication/sample.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
 
-import 'package:employeeapplication/employee_login_page.dart'
-    show EmployeeLoginPage;
 import 'package:google_fonts/google_fonts.dart';
 
-void main() => runApp(MaterialApp(
-      theme:
-          ThemeData(primaryColor: Colors.red, accentColor: Colors.yellowAccent),
-      debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
-    ));
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MaterialApp(
+    theme:
+        ThemeData(primaryColor: Colors.red, accentColor: Colors.yellowAccent),
+    debugShowCheckedModeBanner: false,
+    home: SplashScreen(),
+  ));
+}
 
 class SplashScreen extends StatefulWidget {
   SplashScreen({Key key, this.title}) : super(key: key);

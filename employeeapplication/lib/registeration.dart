@@ -7,36 +7,33 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Employee {
-  final String name;
-  final String email;
-  final String contactno;
-  final String password;
-  final File image;
+// class Employee {
+//   final String name;
+//   final String email;
+//   final String contactno;
+//   final String password;
+//   final File image;
 
-  Employee({this.name, this.email, this.contactno, this.password, this.image});
+//   Employee({this.name, this.email, this.contactno, this.password, this.image});
 
-  Employee employeeFromJson(String str) => Employee.fromJson(json.decode(str));
+//   factory Employee.fromJson(Map<String, dynamic> json) => Employee(
+//         name: json["name"],
+//         email: json["email"],
+//         contactno: json["contactno"],
+//         password: json["password"],
+//         image: json["image"],
+//       );
 
-  String employeeToJson(Employee data) => json.encode(data.toJson());
-
-  factory Employee.fromJson(Map<String, dynamic> json) => Employee(
-        name: json["name"],
-        email: json["email"],
-        contactno: json["contactno"],
-        password: json["password"],
-        image: json["image"],
-      );
-
-  Map<String, dynamic> toJson() => {
-        "name": name,
-        "email": email,
-        "contactno": contactno,
-        "password": password,
-        "image": image,
-      };
-}
+//   Map<String, dynamic> toJson() => {
+//         "name": name,
+//         "email": email,
+//         "contactno": contactno,
+//         "password": password,
+//         "image": image,
+//       };
+// }
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({Key key, this.title}) : super(key: key);
@@ -50,33 +47,45 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   File _image;
 
-  String url = "https://employees-payroll-location-default-rtdb.firebaseio.com";
+  bool _isLoading = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Future<Employee> createPost(String url, {Map body}) async {
-    Map data = {'apikey': 'AIzaSyCaN8IM8LbgtFZo_Wspcw0tnFWlurnBIzI'};
+  // Map data = {'apikey': 'AIzaSyCaN8IM8LbgtFZo_Wspcw0tnFWlurnBIzI'};
 
-    //encode Map to JSON
-    var body = json.encode(data);
+  // String url = "https://employees-payroll-location-default-rtdb.firebaseio.com";
 
-    return http.post(url,
-        body: json.encode(body),
-        headers: {"Authorization": "Bearer"}).then((http.Response response) {
-      final int statusCode = response.statusCode;
+  // https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]
 
-      if (statusCode < 200 || statusCode > 400 || json == null) {
-        throw new Exception("Error While Fetching Data");
-      } else {
-        navigateToSubPage(context);
-      }
+  // Future<Employee> createPost(String url, {Map body}) async {
+  //   Map data = {'apikey': 'AIzaSyCaN8IM8LbgtFZo_Wspcw0tnFWlurnBIzI'};
 
-      return Employee.fromJson(json.decode(response.body));
-    });
-  }
+  //   //encode Map to JSON
+  //   var body = json.encode(data);
+
+  //   final response = await http.post(
+  //     Uri.https(
+  //         'https://employees-payroll-location-default-rtdb.firebaseio.com',
+  //         'Employee'),
+  //     headers: {
+  //       "Content-Type": "application/json; charset=UTF-8",
+  //     },
+  //     body: jsonEncode(body),
+  //   );
+  //   if (response.statusCode < 200 ||
+  //       response.statusCode > 400 ||
+  //       json == null) {
+  //     throw Exception("Error While Fetching Data");
+  //   } else {
+  //     return Employee.fromJson(jsonDecode(response.body));
+  //   }
+  // }
 
   TextEditingController nameController = new TextEditingController();
   TextEditingController emailController = new TextEditingController();
   TextEditingController contactnoController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
+
+  // Future<Employee> _futureEmployee;
 
   getImageFile(ImageSource source) async {
     var image = await ImagePicker.pickImage(source: source);
@@ -154,21 +163,37 @@ class _SignUpPageState extends State<SignUpPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Name',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          // Text(
+          //   'Name',
+          //   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          // ),
+          // SizedBox(
+          //   height: 10,
+          // ),
+          // TextField(
+          //     controller: nameController,
+          //     keyboardType: TextInputType.name,
+          //     decoration: InputDecoration(
+          //         hintText: 'Enter Your Full Name',
+          //         border: InputBorder.none,
+          //         fillColor: Color(0xfff3f3f4),
+          //         filled: true)),
+
+          TextFormField(
+            // controller: _displayName,
+            keyboardType: TextInputType.name,
+            decoration: const InputDecoration(
+              labelText: "Full Name",
+              border: InputBorder.none,
+              fillColor: Color(0xfff3f3f4),
+            ),
+            validator: (String val) {
+              if (val.isEmpty) {
+                return "Please Enter your Full Name";
+              }
+              return null;
+            },
           ),
-          SizedBox(
-            height: 10,
-          ),
-          TextField(
-              controller: nameController,
-              keyboardType: TextInputType.name,
-              decoration: InputDecoration(
-                  hintText: 'Enter Your Full Name',
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true)),
         ],
       ),
     );
@@ -187,14 +212,28 @@ class _SignUpPageState extends State<SignUpPage> {
           SizedBox(
             height: 10,
           ),
-          TextField(
-              controller: contactnoController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                  hintText: 'Enter Your Contact Number',
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true)),
+          // TextField(
+          //     controller: contactnoController,
+          //     keyboardType: TextInputType.number,
+          //     decoration: InputDecoration(
+          //         hintText: 'Enter Your Contact Number',
+          //         border: InputBorder.none,
+          //         fillColor: Color(0xfff3f3f4),
+          //         filled: true)),
+
+          TextFormField(
+            // controller: _contactnoController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: "Contact No",
+            ),
+            validator: (String val) {
+              if (val.isEmpty) {
+                return "Please Enter your Contact Number";
+              }
+              return null;
+            },
+          ),
         ],
       ),
     );
@@ -213,14 +252,27 @@ class _SignUpPageState extends State<SignUpPage> {
           SizedBox(
             height: 10,
           ),
-          TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                  hintText: 'Enter Your Email',
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true)),
+          // TextField(
+          //     controller: emailController,
+          //     keyboardType: TextInputType.emailAddress,
+          //     decoration: InputDecoration(
+          //         hintText: 'Enter Your Email',
+          //         border: InputBorder.none,
+          //         fillColor: Color(0xfff3f3f4),
+          //         filled: true)),
+          TextFormField(
+            // controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: "Email",
+            ),
+            validator: (String val) {
+              if (val.isEmpty) {
+                return "Please Enter your Email";
+              }
+              return null;
+            },
+          ),
         ],
       ),
     );
@@ -239,14 +291,28 @@ class _SignUpPageState extends State<SignUpPage> {
           SizedBox(
             height: 10,
           ),
-          TextField(
-              controller: passwordController,
-              obscureText: isPassword,
-              decoration: InputDecoration(
-                  hintText: 'Enter Your Password',
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true)),
+          // TextField(
+          //     controller: passwordController,
+          //     obscureText: isPassword,
+          //     decoration: InputDecoration(
+          //         hintText: 'Enter Your Password',
+          //         border: InputBorder.none,
+          //         fillColor: Color(0xfff3f3f4),
+          //         filled: true)),
+
+          TextFormField(
+            // controller: _passwordController,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: "Password",
+            ),
+            validator: (String val) {
+              if (val.isEmpty) {
+                return "Please Enter your Password";
+              }
+              return null;
+            },
+          ),
         ],
       ),
     );
@@ -264,16 +330,9 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _submitButton() {
     return InkWell(
       onTap: () async {
-        Employee employee = new Employee(
-            name: nameController.text,
-            contactno: contactnoController.text,
-            email: emailController.text,
-            password: passwordController.text);
-        Employee emp = await createPost(url, body: employee.toJson());
-        print(emp.name);
-        print(emp.contactno);
-        print(emp.email);
-        print(emp.password);
+        setState(() {
+          _isLoading = true;
+        });
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -341,64 +400,66 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
       body: Container(
         height: height,
-        child: Stack(
-          children: [
-            Positioned(
-              top: -MediaQuery.of(context).size.height * .15,
-              right: -MediaQuery.of(context).size.width * .4,
-              child: BezierContainer(),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: height * .1),
-                    _title(),
-                    SizedBox(
-                      height: 20,
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Stack(
+                children: [
+                  Positioned(
+                    top: -MediaQuery.of(context).size.height * .15,
+                    right: -MediaQuery.of(context).size.width * .4,
+                    child: BezierContainer(),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: height * .1),
+                          _title(),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          _nameField('Email ID'),
+                          SizedBox(
+                            height: 1,
+                          ),
+                          _contactField(),
+                          SizedBox(
+                            height: 1,
+                          ),
+                          _emailPasswordWidget(),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Center(
+                            child: _image == null
+                                ? Text(
+                                    "-----Select Image From the Bottom Button-----")
+                                : Image.file(
+                                    _image,
+                                    height: 200,
+                                    width: 200,
+                                  ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          _submitButton(),
+                          SizedBox(height: 20),
+                          _loginAccountLabel(),
+                        ],
+                      ),
                     ),
-                    _nameField('Email ID'),
-                    SizedBox(
-                      height: 1,
-                    ),
-                    _contactField(),
-                    SizedBox(
-                      height: 1,
-                    ),
-                    _emailPasswordWidget(),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Center(
-                      child: _image == null
-                          ? Text(
-                              "-----Select Image From the Bottom Button-----")
-                          : Image.file(
-                              _image,
-                              height: 200,
-                              width: 200,
-                            ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _submitButton(),
-                    SizedBox(height: 20),
-                    _loginAccountLabel(),
-                  ],
-                ),
+                  ),
+                  Positioned(
+                    top: 40,
+                    left: 0,
+                    child: _backButton(),
+                  ),
+                ],
               ),
-            ),
-            Positioned(
-              top: 40,
-              left: 0,
-              child: _backButton(),
-            ),
-          ],
-        ),
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -423,10 +484,5 @@ class _SignUpPageState extends State<SignUpPage> {
         ],
       ),
     );
-  }
-
-  Future navigateToSubPage(BuildContext context) async {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => EmployeeLoginPage()));
   }
 }
