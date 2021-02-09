@@ -1,11 +1,7 @@
 import 'dart:async';
-
 import 'package:employeeapplication/employee_login_page.dart';
-import 'package:employeeapplication/sample.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:flutter/material.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
@@ -74,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen> {
                                 text: 'E',
                                 style: GoogleFonts.portLligatSans(
                                   textStyle:
-                                      Theme.of(context).textTheme.display1,
+                                      Theme.of(context).textTheme.headline4,
                                   fontSize: 30,
                                   fontWeight: FontWeight.w700,
                                   color: Color(0xfffe46b10),

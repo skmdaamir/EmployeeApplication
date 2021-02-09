@@ -1,51 +1,40 @@
-import 'package:employeeapplication/employee_login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MainPage extends StatefulWidget {
+  final User user;
+
+  const MainPage({Key key, this.user}) : super(key: key);
+
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  SharedPreferences sharedPreferences;
-  void initState() {
-    super.initState();
-    checkLoginStatus();
-  }
-
-  checkLoginStatus() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString("token") == null) {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-              builder: (BuildContext context) => EmployeeLoginPage()),
-          (Route<dynamic> route) => false);
-    }
-  }
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Dashboard'),
-        actions: [
-          FlatButton(
-            onPressed: () {
-              sharedPreferences.clear();
-              sharedPreferences.commit();
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                      builder: (BuildContext context) => EmployeeLoginPage()),
-                  (Route<dynamic> route) => false);
-            },
-            child:
-                Text("Log Out", style: TextStyle(color: Colors.orangeAccent)),
-          ),
-        ],
+      key: _scaffoldKey,
+      body: Container(
+        width: double.infinity,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              child: Text(
+                widget.user.displayName,
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              ),
+            )
+          ],
+        ),
       ),
-      body: Center(child: Text('Main Page')),
-      drawer: Drawer(),
     );
   }
+
+  // void _signOut() async {
+  //   await _auth.signOut();
+  // }
 }

@@ -1,10 +1,9 @@
-import 'dart:io';
-
+import 'package:employeeapplication/main_page.dart';
 import 'package:employeeapplication/registeration.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'bezier_container.dart';
-import 'package:http/http.dart' as http;
 
 class EmployeeLoginPage extends StatefulWidget {
   EmployeeLoginPage({Key key, this.title}) : super(key: key);
@@ -17,30 +16,31 @@ class EmployeeLoginPage extends StatefulWidget {
 
 class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  TextEditingController emailController = new TextEditingController();
+  TextEditingController passwordController = new TextEditingController();
 
   Widget _emailField(String title) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
-      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          SizedBox(
-            height: 10,
-          ),
           TextFormField(
-              onChanged: (val) {
-                // setState(() => email = val);
-              },
-              decoration: InputDecoration(
-                  hintText: 'Enter Your Email',
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true)),
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: "Email",
+              fillColor: Color(0xfff3f3f4),
+            ),
+            validator: (String val) {
+              if (val.isEmpty) {
+                return "Please Enter your Email";
+              }
+              return null;
+            },
+          ),
         ],
       ),
     );
@@ -52,55 +52,41 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Password',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          SizedBox(
-            height: 10,
-          ),
           TextFormField(
-              onChanged: (val) {
-                // setState(() => password = val);
-              },
-              obscureText: isPassword,
-              decoration: InputDecoration(
-                  hintText: 'Enter Your Password',
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true)),
+            controller: passwordController,
+            obscureText: true,
+            decoration: const InputDecoration(
+              labelText: "Password",
+              fillColor: Color(0xfff3f3f4),
+            ),
+            validator: (String val) {
+              if (val.isEmpty) {
+                return "Please Enter your Password";
+              }
+              return null;
+            },
+          ),
         ],
       ),
     );
   }
 
   Widget _submitButton() {
-    return GestureDetector(
-      onTap: () async {
-        //  print(email);
-        //  print(password);
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.symmetric(vertical: 15),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
-            gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-        child: Text(
-          'Login',
-          style: TextStyle(fontSize: 20, color: Colors.white),
-        ),
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.symmetric(vertical: 20),
+      alignment: Alignment.center,
+      child: MaterialButton(
+        onPressed: () {
+          if (_formKey.currentState.validate()) {
+            _signinWithEmailPassword();
+          }
+        },
+        child:
+            Text("Log in", style: TextStyle(fontSize: 20, color: Colors.white)),
+        color: Colors.orangeAccent,
+        height: 50,
+        minWidth: 500,
       ),
     );
   }
@@ -177,7 +163,7 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
       text: TextSpan(
           text: 'E',
           style: GoogleFonts.portLligatSans(
-            textStyle: Theme.of(context).textTheme.display1,
+            textStyle: Theme.of(context).textTheme.headline4,
             fontSize: 30,
             fontWeight: FontWeight.w700,
             color: Color(0xfffe46b10),
@@ -209,6 +195,7 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
     final height = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      key: _scaffoldKey,
       body: Container(
         height: height,
         child: Stack(
@@ -217,43 +204,59 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
                 top: -height * .15,
                 right: -MediaQuery.of(context).size.width * .4,
                 child: BezierContainer()),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: height * .2),
-                    _title(),
-                    SizedBox(height: 50),
-                    _emailPasswordWidget(),
-                    SizedBox(height: 20),
-                    _submitButton(),
-                    Container(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      alignment: Alignment.center,
-                      child: Text('Forgot Password ?',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w500)),
-                    ),
-                    _divider(),
-                    // _facebookButton(),
-
-                    SizedBox(height: height * .055),
-                    _createAccountLabel(),
-                  ],
+            Form(
+              key: _formKey,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(height: height * .2),
+                      _title(),
+                      SizedBox(height: 50),
+                      _emailPasswordWidget(),
+                      SizedBox(height: 20),
+                      _submitButton(),
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        alignment: Alignment.center,
+                        child: Text('Forgot Password ?',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w500)),
+                      ),
+                      _divider(),
+                      SizedBox(height: height * .055),
+                      _createAccountLabel(),
+                    ],
+                  ),
                 ),
               ),
             ),
-            // Positioned(
-            //   top: 40,
-            //   left: 0,
-            //   child: _backButton(),
-            // ),
           ],
         ),
       ),
     );
+  }
+
+  void _signinWithEmailPassword() async {
+    try {
+      final User user = (await _auth.signInWithEmailAndPassword(
+              email: emailController.text, password: passwordController.text))
+          .user;
+      if (!user.emailVerified) {
+        await user.sendEmailVerification();
+      }
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+        return MainPage(
+          user: user,
+        );
+      }));
+    } catch (e) {
+      _scaffoldKey.currentState.showSnackBar(
+          SnackBar(content: Text("Failed to Sign in with email and password")));
+      print(e);
+    }
   }
 }
